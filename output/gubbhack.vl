@@ -1,0 +1,7 @@
+
+
+al C:c046 .scrollpos
+al C:c000 .start
+al C:c035 .scrolltext
+al C:c005 .loop1
+al C:c01b .loop2
