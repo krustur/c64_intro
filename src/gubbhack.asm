@@ -1,7 +1,4 @@
 
-;!cpu 6502
-;!to "output/gubbhack.prg",cbm
-
 ;============================================================
 ; BASIC loader 
 ;============================================================
@@ -14,22 +11,45 @@
 
 * = $c000	; start address for 6502 code
 
-start 	
+start 		
+		; ; Scroll pixel ...
+		; LDY scrollPixel
+		; INY
+		; CPY #8
+		; BNE noNewScrollChar
+		; ; ... and Scroll char
+		; LDY #0		
+
+		; LDX scrollChar
+		; INX
+		; STX scrollChar
 		
-		LDY #0
-		STY scrollpos
-loop1
- 		LDX #0: STX $D020
+; noNewScrollChar
+		; STY scrollPixel
 		
-		lda $d012		; Wait for frame
+
+		
+		
+		
+		LDY #0				; DELETE
+		STY scrollChar		; DELETE
+mainLoop
+		; VBL border col (Idle=black)
+ 		LDX #0: STX $D020	
+		
+		; Wait for frame
+waitVbl
+		lda $d012			
 		cmp #$ff
-		bne loop1
-			
-		LDX #2: STX $D020
+		bne waitVbl
 		
-		LDX scrollpos
+		; VBL border col (Work=red)
+		LDX #2: STX $D020	
+		
+		; Put chars
+		LDX scrollChar
 		LDY #0
-loop2
+putCharLoop
 		;INC $D020
 		
 		LDA scrolltext,X
@@ -39,23 +59,27 @@ loop2
 		INY
 		
 		CPX #17
-		BNE loop2
+		BNE putCharLoop
 		
-		LDY scrollpos
+		LDY scrollChar
 		INY
-		STY scrollpos
+		STY scrollChar
 		
 		CPY #17
-		BNE loop1
+		BNE mainLoop
 		
 		JMP start
 
+scrollPixel
+		!byte 0
+scrollChar
+		!byte 0
 		
 scrolltext
+		;!scr "                                        " 
 		!scr "oh my im awesome!"
 
-scrollpos
-		!byte 0
+
 		
 		; 256 characters
 		;!scr "0123456789012345678901234567890123456789012345678901234567890123"
