@@ -1,7 +1,11 @@
 
 
-al C:c046 .scrollpos
+al C:c022 .waitVbl
+al C:c033 .putCharLoop
+al C:c01d .mainLoop
+al C:c057 .scrollChar
+al C:c00e .clearLoop
 al C:c000 .start
-al C:c035 .scrolltext
-al C:c005 .loop1
-al C:c01b .loop2
+al C:c058 .scrolltext
+al C:c050 .noNewScrollChar
+al C:c056 .scrollPixel
