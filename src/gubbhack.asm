@@ -11,15 +11,26 @@
 
 * = $c000	; start address for 6502 code
 start	
-		; ; Clear screen
-		; LDX #0
-		; LDY #255
-; .clearLoop
-		; STX $0400,y
-		; DEY
-		; BEQ .clearLoop
+		; Back col 
+ 		LDX #0: STX $D020	
+		LDX #0: STX $D021	
 		
-
+		; LDA #LO(mainLoop) 
+		
+		; Clear screen
+		LDA #32
+		LDY #0
+clearLoop
+		STA $0400,y
+		STA $0500,y
+		STA $0600,y
+		STA $0700,y
+		DEY
+		;CPY #0
+		BNE clearLoop
+		
+		; JMP start
+		
 mainLoop
 		; VBL border col (Idle=black)
  		LDX #0: STX $D020	
