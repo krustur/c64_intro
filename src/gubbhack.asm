@@ -74,6 +74,16 @@ COLOR_LIGHT_GREEN	= $D
 COLOR_LIGHT_BLUE	= $E
 COLOR_LIGHT_GREY	= $F
 
+!macro SetBorderColorA color {
+	LDA #color
+	STA VICII_BORDER_COLOR
+}
+
+!macro SetBackgroundColorA color {
+	LDA #color
+	STA VICII_BACKGROUND_COLOR_0
+}
+
 * = $0801	; BASIC start address ($0801=#2049)
 			; puts BASIC line 2012 SYS 49152
 		!byte $0d,$08,$dc,$07,$9e,$20,$34,$39
@@ -83,11 +93,8 @@ COLOR_LIGHT_GREY	= $F
 * = $c000	; start address for 6502 code
 start	
 		; Back col 
- 		LDX #COLOR_BLACK
-		STX VICII_BORDER_COLOR
-		STX VICII_BACKGROUND_COLOR_0	
-		
-		;LDA #<mainLoop
+ 		+SetBorderColorA COLOR_BLACK
+		+SetBackgroundColorA COLOR_BLACK	
 		
 		; Setup interrupt
 		SEI
@@ -125,8 +132,7 @@ clearLoop
 		
 mainLoop
 		; VBL border col (Idle)
- 		LDX #COLOR_BLACK
-		STX VICII_BORDER_COLOR
+ 		+SetBorderColorA COLOR_BLACK
 		
 		; Wait for frame
 waitVbl
@@ -135,8 +141,7 @@ waitVbl
 		bne waitVbl
 		
 		; VBL border col (Work)
-		LDX #COLOR_RED
-		STX VICII_BORDER_COLOR	
+		+SetBorderColorA COLOR_RED
 		
 		; Put chars
 		LDX scrollChar	
@@ -172,9 +177,8 @@ noNewScrollChar
 
 interrupt
 		; VBL border col (Work=???)
-		LDX #COLOR_BROWN
-		STX VICII_BORDER_COLOR	
-		STX VICII_BACKGROUND_COLOR_0
+		+SetBorderColorA COLOR_BROWN
+		+SetBackgroundColorA COLOR_BROWN
 		
 		;LDA #0
 		;SBC scrollPixel
@@ -186,9 +190,8 @@ interrupt
 
 		
 		; VBL border col (Idle=black)
- 		LDX #0
-		STX VICII_BORDER_COLOR
-		STX VICII_BACKGROUND_COLOR_0
+		+SetBorderColorA COLOR_BLACK
+		+SetBackgroundColorA COLOR_BLACK
 		
 		ASL VICII_INTERRUPT_REGISTER
 		;RTI
