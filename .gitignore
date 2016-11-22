@@ -1,2 +1,3 @@
 !ACME.exe
-!*.exe
+!ACME.pdb
+!ACME.ilk
