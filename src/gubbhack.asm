@@ -125,10 +125,7 @@ clearLoop
 		STA $0600,y
 		STA $0700,y
 		DEY
-		;CPY #0
 		BNE clearLoop
-		
-		; JMP start
 		
 mainLoop
 		; VBL border col (Idle)
@@ -184,7 +181,7 @@ interrupt
 		;SBC scrollPixel
 		 
 		LDA VICII_CONTROL_REGISTER_2
-		AND #$F8
+		AND #$F0
 		ADC scrollPixel
 		STA VICII_CONTROL_REGISTER_2
 
@@ -211,4 +208,4 @@ scrolltext
 		!scr "est, no protest! greetz flyes out to run"
 		!scr "e, scoon, gasso, ekart and every other l"
 		!scr "amer i know!! :)"
-		
+					!binary "..\data\sid\ode to 64.bin"
