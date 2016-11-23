@@ -96,6 +96,10 @@ start
  		+SetBorderColorA COLOR_BLACK
 		+SetBackgroundColorA COLOR_BLACK	
 		
+		; Init music
+		LDA #realStartSong
+		JSR musicInit
+				
 		; Setup interrupt
 		SEI
 		
@@ -200,7 +204,8 @@ interrupt
 		AND #$F0
 		ADC scrollPixel
 		STA VICII_CONTROL_REGISTER_2
-
+		
+		jsr musicPlay
 		
 		; VBL border col (Idle=black)
 		+SetBorderColorA COLOR_BLACK
@@ -232,4 +237,18 @@ scrolltext
 		!scr "est, no protest! greetz flyes out to run"
 		!scr "e, scoon, gasso, ekart and every other l"
 		!scr "amer i know!! :)"
-					!binary "..\data\sid\ode to 64.bin"
+
+		;Working
+realStartSong = 2
+		;!src "..\data\sid\Ghosts_n_Goblins.asm"
+		;!src "..\data\sid\Ode_to_C64.asm"
+		;!src "..\data\sid\Last_Ninja_2.asm"
+		;!src "..\data\sid\Last_Ninja_2_real.asm"
+		;!src "..\data\sid\Commando.asm"
+		!src "..\data\sid\Monty_on_the_Run.asm"
+		
+		
+		;Not working
+		; !src "..\data\sid\Ghostbusters.asm"
+		; !src "..\data\sid\Last_Ninja_4_loader.asm"
+		
