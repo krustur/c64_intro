@@ -51,10 +51,10 @@ CIA1_INTERRUPT_CONTROL_STATUS	= $DC0D
 
 CIA2_INTERRUPT_CONTROL_STATUS	= $DD0D
                 
-UNKNOWN_0314	= $0314
-UNKNOWN_0315	= $0315
+;UNKNOWN_0314	= $0314
+;UNKNOWN_0315	= $0315
                 
-UNKNOWN_EA81	= $EA81
+;UNKNOWN_EA81	= $EA81
 
 
 COLOR_BLACK			= $0
@@ -98,19 +98,29 @@ start
 		
 		; Setup interrupt
 		SEI
+		
 		LDA #$7f
 		STA CIA1_INTERRUPT_CONTROL_STATUS
 		STA CIA2_INTERRUPT_CONTROL_STATUS
-		AND VICII_CONTROL_REGISTER_1
+		LDA CIA1_INTERRUPT_CONTROL_STATUS
+		LDA CIA2_INTERRUPT_CONTROL_STATUS
+		
+		LDA #$7f
+		AND VICII_CONTROL_REGISTER_1 ; reuses LDA #$7f !
 		STA VICII_CONTROL_REGISTER_1
 		
 		LDY #150
 		STY VICII_RASTER_COUNTER
 		
+		LDA #$35   ;we turn off the BASIC and KERNAL rom here
+		STA $01
+
 		LDA #<interrupt
 		LDX #>interrupt
-		STA UNKNOWN_0314
-		STX UNKNOWN_0315
+		;STA UNKNOWN_0314
+		;STX UNKNOWN_0315
+		STA $fffe
+		STX $ffff
 		
 		LDA #$01			; enable raster interrupt
 		STA	VICII_INTERRUPT_ENABLED
@@ -173,6 +183,12 @@ noNewScrollChar
 		JMP mainLoop
 
 interrupt
+		PHA
+		TXA
+		PHA
+		TYA
+		PHA
+		
 		; VBL border col (Work=???)
 		+SetBorderColorA COLOR_BROWN
 		+SetBackgroundColorA COLOR_BROWN
@@ -190,9 +206,17 @@ interrupt
 		+SetBorderColorA COLOR_BLACK
 		+SetBackgroundColorA COLOR_BLACK
 		
-		ASL VICII_INTERRUPT_REGISTER
-		;RTI
-		JMP UNKNOWN_EA81
+		LDA #$ff 
+		STA VICII_INTERRUPT_REGISTER
+		
+		PLA
+		TAY
+		PLA
+		TAX
+		PLA
+		
+		RTI
+		;JMP UNKNOWN_EA81
 		
 		
 scrollPixel
