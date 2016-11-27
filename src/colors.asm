@@ -1,0 +1,26 @@
+COLOR_BLACK			= $0
+COLOR_WHITE			= $1
+COLOR_RED			= $2
+COLOR_CYAN			= $3
+COLOR_PURPLE		= $4
+COLOR_GREEN			= $5
+COLOR_BLUE			= $6
+COLOR_YELLOW		= $7
+COLOR_ORANGE		= $8
+COLOR_BROWN			= $9
+COLOR_LIGHT_RED		= $A
+COLOR_DARK_GREY		= $B
+COLOR_GREY     		= $C
+COLOR_LIGHT_GREEN	= $D
+COLOR_LIGHT_BLUE	= $E
+COLOR_LIGHT_GREY	= $F
+
+!macro SetBorderColorA color {
+	lda #color
+	sta VICII_BORDER_COLOR
+}
+
+!macro SetBackgroundColorA color {
+	lda #color
+	sta VICII_BACKGROUND_COLOR_0
+}
