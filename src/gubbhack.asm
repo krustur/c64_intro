@@ -75,153 +75,165 @@ COLOR_LIGHT_BLUE	= $E
 COLOR_LIGHT_GREY	= $F
 
 !macro SetBorderColorA color {
-	LDA #color
-	STA VICII_BORDER_COLOR
+	lda #color
+	sta VICII_BORDER_COLOR
 }
 
 !macro SetBackgroundColorA color {
-	LDA #color
-	STA VICII_BACKGROUND_COLOR_0
+	lda #color
+	sta VICII_BACKGROUND_COLOR_0
 }
 
-* = $0801	; BASIC start address ($0801=#2049)
-			; puts BASIC line 2012 SYS 49152
-		!byte $0d,$08,$dc,$07,$9e,$20,$34,$39
-		!byte $31,$35,$32,$00,$00,$00           
+;// BASIC header with a SYS call 
+* = $0801
+basicLoader
+	!word basicLoaderNextLine
+	!word 10						;// BASIC line number 
+	!byte $9e,$20					;// "SYS <address>"	
+	!byte <(((start/10000)%10)+$30)
+	!byte <(((start/1000)%10)+$30)
+	!byte <(((start/100)%10)+$30)
+	!byte <(((start/10)%10)+$30)
+	!byte <(((start/1)%10)+$30)
+	!byte $00 						;// BASIC eol
+basicLoaderNextLine
+	!word 0,0						;// BASIC end marker 
 
 
-* = $c000	; start address for 6502 code
+
+
+;//* = $c000	;// start address for 6502 code
 start	
-		; Back col 
+		;// Back col 
  		+SetBorderColorA COLOR_BLACK
 		+SetBackgroundColorA COLOR_BLACK	
 		
-		; Init music
-		LDA #realStartSong
-		JSR musicInit
+		;// Init music
+		lda #realstartSong
+		jsr musicInit
 				
-		; Setup interrupt
-		SEI
+		;// Setup interrupt
+		sei
 		
-		LDA #$7f
-		STA CIA1_INTERRUPT_CONTROL_STATUS
-		STA CIA2_INTERRUPT_CONTROL_STATUS
-		LDA CIA1_INTERRUPT_CONTROL_STATUS
-		LDA CIA2_INTERRUPT_CONTROL_STATUS
+		lda #$7f
+		sta CIA1_INTERRUPT_CONTROL_STATUS
+		sta CIA2_INTERRUPT_CONTROL_STATUS
+		lda CIA1_INTERRUPT_CONTROL_STATUS
+		lda CIA2_INTERRUPT_CONTROL_STATUS
 		
-		LDA #$7f
-		AND VICII_CONTROL_REGISTER_1 ; reuses LDA #$7f !
-		STA VICII_CONTROL_REGISTER_1
+		lda #$7f
+		and VICII_CONTROL_REGISTER_1 ;// reuses lda #$7f !
+		sta VICII_CONTROL_REGISTER_1
 		
-		LDY #150
-		STY VICII_RASTER_COUNTER
+		ldy #150
+		sty VICII_RASTER_COUNTER
 		
-		LDA #$35   ;we turn off the BASIC and KERNAL rom here
-		STA $01
+		lda #$35   ;//we turn off the BASIC and KERNAL rom here
+		sta $01
 
-		LDA #<interrupt
-		LDX #>interrupt
-		;STA UNKNOWN_0314
-		;STX UNKNOWN_0315
-		STA $fffe
-		STX $ffff
+		lda #<interrupt
+		ldx #>interrupt
+		;//sta UNKNOWN_0314
+		;//stx UNKNOWN_0315
+		sta $fffe
+		stx $ffff
 		
-		LDA #$01			; enable raster interrupt
-		STA	VICII_INTERRUPT_ENABLED
-		CLI
+		lda #$01			;// enable raster interrupt
+		sta	VICII_INTERRUPT_ENABLED
+		cli
 		
-		; Clear screen
-		LDA #32
-		LDY #0
+		;// Clear screen
+		lda #32
+		ldy #0
 clearLoop
-		STA $0400,y
-		STA $0500,y
-		STA $0600,y
-		STA $0700,y
-		DEY
-		BNE clearLoop
+		sta $0400,y
+		sta $0500,y
+		sta $0600,y
+		sta $0700,y
+		dey
+		bne clearLoop
 		
 mainLoop
-		; VBL border col (Idle)
+		;// VBL border col (Idle)
  		+SetBorderColorA COLOR_BLACK
 		
-		; Wait for frame
+		;// Wait for frame
 waitVbl
 		lda VICII_RASTER_COUNTER			
 		cmp #$ff
 		bne waitVbl
 		
-		; VBL border col (Work)
+		;// VBL border col (Work)
 		+SetBorderColorA COLOR_RED
 		
-		; Put chars
-		LDX scrollChar	
-		LDY #0
+		;// Put chars
+		ldx scrollChar	
+		ldy #0
 putCharLoop
-		;INC $D020
+		;//inc $D020
 		
-		LDA scrolltext,X
-		STA $0400+40,Y
+		lda scrolltext,X
+		sta $0400+40,Y
 		
-		INX
-		INY
+		inx
+		iny
 		
-		CPY #40
-		BNE putCharLoop
+		cpy #40
+		bne putCharLoop
 		
-		; Scroll pixel ...
-		LDY scrollPixel
-		DEY
-		CPY #0
-		BNE noNewScrollChar
-		; ... and Scroll char
-		LDY #7		
+		;// Scroll pixel ...
+		ldy scrollPixel
+		dey
+		cpy #0
+		bne noNewScrollChar
+		;// ... and Scroll char
+		ldy #7		
 
-		LDX scrollChar
-		INX
-		STX scrollChar
+		ldx scrollChar
+		inx
+		stx scrollChar
 		
 noNewScrollChar
-		STY scrollPixel
+		sty scrollPixel
 		
-		JMP mainLoop
+		jmp mainLoop
 
 interrupt
-		PHA
-		TXA
-		PHA
-		TYA
-		PHA
+		pha
+		txa
+		pha
+		tya
+		pha
 		
-		; VBL border col (Work=???)
+		;// VBL border col (Work=???)
 		+SetBorderColorA COLOR_BROWN
 		+SetBackgroundColorA COLOR_BROWN
 		
-		;LDA #0
-		;SBC scrollPixel
+		;//lda #0
+		;//sbc scrollPixel
 		 
-		LDA VICII_CONTROL_REGISTER_2
-		AND #$F0
-		ADC scrollPixel
-		STA VICII_CONTROL_REGISTER_2
+		lda VICII_CONTROL_REGISTER_2
+		and #$F0
+		adc scrollPixel
+		sta VICII_CONTROL_REGISTER_2
 		
 		jsr musicPlay
 		
-		; VBL border col (Idle=black)
+		;// VBL border col (Idle=black)
 		+SetBorderColorA COLOR_BLACK
 		+SetBackgroundColorA COLOR_BLACK
 		
-		LDA #$ff 
-		STA VICII_INTERRUPT_REGISTER
+		lda #$ff 
+		sta VICII_INTERRUPT_REGISTER
 		
-		PLA
-		TAY
-		PLA
-		TAX
-		PLA
+		pla
+		tay
+		pla
+		tax
+		pla
 		
-		RTI
-		;JMP UNKNOWN_EA81
+		rti
+		;//jmp UNKNOWN_EA81
 		
 		
 scrollPixel
@@ -238,17 +250,17 @@ scrolltext
 		!scr "e, scoon, gasso, ekart and every other l"
 		!scr "amer i know!! :)"
 
-		;Working
-realStartSong = 2
-		;!src "..\data\sid\Ghosts_n_Goblins.asm"
-		;!src "..\data\sid\Ode_to_C64.asm"
-		;!src "..\data\sid\Last_Ninja_2.asm"
-		;!src "..\data\sid\Last_Ninja_2_real.asm"
-		;!src "..\data\sid\Commando.asm"
-		!src "..\data\sid\Monty_on_the_Run.asm"
+		;//Working
+realstartSong = 2
+		!src "..\data\sid\Ghosts_n_Goblins.asm"
+		;//!src "..\data\sid\Ode_to_C64.asm"
+		;//!src "..\data\sid\Last_Ninja_2.asm"
+		;//!src "..\data\sid\Last_Ninja_2_real.asm"
+		;//!src "..\data\sid\Commando.asm"
+		;//!src "..\data\sid\Monty_on_the_Run.asm"
 		
 		
-		;Not working
-		; !src "..\data\sid\Ghostbusters.asm"
-		; !src "..\data\sid\Last_Ninja_4_loader.asm"
+		;//Not working
+		;// !src "..\data\sid\Ghostbusters.asm"
+		;// !src "..\data\sid\Last_Ninja_4_loader.asm"
 		
