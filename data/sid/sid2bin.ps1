@@ -1,21 +1,23 @@
 #function extractBin{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$False)]
-        [string]$sidFile='Monty_on_the_Run.sid',
-        [Parameter(Mandatory=$False)]
-        [string]$binFile='Monty_on_the_Run.bin',
-        [Parameter(Mandatory=$False)]
-        [string]$asmFile='Monty_on_the_Run.asm'
+        [Parameter(Mandatory=$True)]
+        [string]$path,        
+        [Parameter(Mandatory=$True)]
+        [string]$sidFile,
+        [Parameter(Mandatory=$True)]
+        [string]$binFile,
+        [Parameter(Mandatory=$True)]
+        [string]$asmFile
 
     )
-    Write-Output "Sid file: $sidFile"    
-    $sidLen = (Get-Item $sidFile).length
+    Write-Output "Sid file: $path/$sidFile"    
+    $sidLen = (Get-Item "$path/$sidFile").length
     Write-Output " fileLength: $sidLen"
    
     
 
-    $stream = [System.IO.File]::OpenRead($sidFile)
+    $stream = [System.IO.File]::OpenRead("$path/$sidFile")
 
     $barr = New-Object byte[] $sidLen
     $bytesRead = $stream.Read($barr,0,76) # read first 76
@@ -45,29 +47,29 @@
     $bytesRead = $stream.Read($barr, 0, $sidLen-$dataOffset) # read actual data
     $stream.Close();
 
-    $ostream = [System.IO.File]::OpenWrite($binFile)
+    $ostream = [System.IO.File]::OpenWrite("$path\$binFile")
     $ostream.Write($barr,0,$bytesRead);
     $ostream.close();
 
-    echo "wrote $binFile"  
+    echo "wrote $path\$binFile"  
 
 
 #        * = $AF00 
 #musicInit = $AF00
 #musicPlay = $C015
 #		   !binary "..\data\sid\Dragons_Lair_Part_II.bin"
+    #$incBin = '.import binary'
+    #$const = '.const '
+    $incBin = '!binary'
+    $const = ''
+    $enc = 'ascii'
 
-    '        * = $' | Out-File $asmFile -NoNewline -Encoding utf8
-    "{0:X0}" -f $loadAddress | Out-File $asmFile -Append -Encoding utf8
-    'musicInit = $' | Out-File $asmFile  -Append -NoNewline -Encoding utf8
-    "{0:X0}" -f $initAddress | Out-File $asmFile -Append -Encoding utf8
-    'musicPlay = $' | Out-File $asmFile  -Append -NoNewline -Encoding utf8
-    "{0:X0}" -f $playAddress | Out-File $asmFile -Append -Encoding utf8
-    'musicSongCount = $' | Out-File $asmFile  -Append -NoNewline -Encoding utf8
-    "{0:X0}" -f $songs | Out-File $asmFile -Append -Encoding utf8
-    'musicStartSong = $' | Out-File $asmFile  -Append -NoNewline -Encoding utf8
-    "{0:X0}" -f $startSong | Out-File $asmFile -Append -Encoding utf8
-    "          !binary`"..\data\sid\$binFile`"" | Out-File $asmFile -Append -Encoding utf8
+    ("        * = $`{0:X0}") -f $loadAddress | Out-File "$path\$asmFile" -Encoding utf8
+    ("${const}musicInit = `${0:X0}" -f $initAddress) | Out-File "$path\$asmFile" -Encoding utf8 -Append
+    ("${const}musicPlay = `${0:X0}" -f $playAddress) | Out-File "$path\$asmFile" -Encoding utf8 -Append
+    ("${const}musicSongCount = `${0:X0}" -f $songs) | Out-File "$path\$asmFile"  -Encoding utf8 -Append
+    ("${const}musicStartSong = `${0:X0}" -f $startSong) | Out-File "$path\$asmFile"  -Encoding utf8 -Append
+    "$incBin `"..\data\sid\$binFile`"" | Out-File "$path\$asmFile" -Encoding utf8 -Append 
 
-    echo "wrote $asmFile" 
+    echo "wrote "$path\$asmFile"" 
 #}
