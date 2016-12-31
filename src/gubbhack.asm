@@ -77,7 +77,14 @@ waitVbl
 		;// VBL border col (Work)
 		+SetBorderColorA COLOR_RED
 		
-		;// Put chars
+		jsr scroller
+		
+		jmp mainLoop
+
+
+scroller
+
+;// Put chars
 		ldx scrollChar	
 		ldy #0
 putCharLoop
@@ -106,9 +113,8 @@ putCharLoop
 		
 noNewScrollChar
 		sty scrollPixel
+		rts
 		
-		jmp mainLoop
-
 interrupt
 		pha
 		txa
@@ -160,10 +166,15 @@ scrolltext
 		!scr "est, no protest! greetz flyes out to run"
 		!scr "e, scoon, gasso, ekart and every other l"
 		!scr "amer i know!! :)"
+sinTable
+		!binary "..\data\sinus.bin"
 
 		;//Working
 realstartSong = 2
-		!src "..\data\sid\Ghosts_n_Goblins.asm"
+		;//!src "..\data\sid\Ghosts_n_Goblins.asm"
+		!src "..\data\sid\Ikari_Intro.asm"
+		;//!src "..\data\sid\Accept_or_Die.asm"
+		;//!src "..\data\sid\Iceman_01.asm"
 		;//!src "..\data\sid\Ode_to_C64.asm"
 		;//!src "..\data\sid\Last_Ninja_2.asm"
 		;//!src "..\data\sid\Last_Ninja_2_real.asm"

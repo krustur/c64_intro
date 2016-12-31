@@ -1,4 +1,4 @@
-#function extractBin{
+function extractBin{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
@@ -72,4 +72,7 @@
     "$incBin `"..\data\sid\$binFile`"" | Out-File "$path\$asmFile" -Encoding utf8 -Append 
 
     echo "wrote "$path\$asmFile"" 
-#}
+}
+
+$sidName = 'Ikari_Intro'
+extractBin -path 'F:\Google Drive\Projects\C64\c64_intro\data\sid' -sidFile "$sidName.sid" -binFile "$sidName.bin" -asmFile "$sidName.asm"
