@@ -10,6 +10,13 @@
                 
 ;UNKNOWN_EA81	= $EA81
 
+!macro WaitRasterA raster {
+.waitVbl
+		lda VICII_RASTER_COUNTER			
+		cmp #raster
+		bne .waitVbl
+}
+
 * = $0801
 	+BasicLoader start
 
@@ -33,70 +40,112 @@ start
 		lda CIA2_INTERRUPT_CONTROL_STATUS
 		
 		lda #$7f
-		and VICII_CONTROL_REGISTER_1 ;// reuses lda #$7f !
+		and VICII_CONTROL_REGISTER_1
 		sta VICII_CONTROL_REGISTER_1
 		
-		ldy #150
+		ldy #220
 		sty VICII_RASTER_COUNTER
 		
 		lda #$35   ;//we turn off the BASIC and KERNAL rom here
 		sta $01
 
-		lda #<interrupt
-		ldx #>interrupt
-		;//sta UNKNOWN_0314
-		;//stx UNKNOWN_0315
-		sta $fffe
-		stx $ffff
-		
-		lda #$01			;// enable raster interrupt
-		sta	VICII_INTERRUPT_ENABLED
-		cli
+		cli	
 		
 		;// Clear screen
 		lda #32
 		ldy #0
 clearLoop
+		lda baseScreen,y
 		sta $0400,y
+		lda baseScreen+$100,y
 		sta $0500,y
+		lda baseScreen+$200,y
 		sta $0600,y
+		lda baseScreen+$300,y
 		sta $0700,y
 		dey
 		bne clearLoop
+
+		;// Clear colors screen
 		
+		ldy #0
+clearColLoop
+		lda #3
+		sta $D800,y
+		lda #4
+		sta $D900,y
+		lda #4
+		sta $DA00,y
+		lda #14
+		sta $DB00,y
+		dey
+		bne clearColLoop
+
 mainLoop
 		;// VBL border col (Idle)
- 		+SetBorderColorA COLOR_BLACK
+		;//+WaitRasterA $ff
+ 		;//+SetBorderColorA COLOR_BLACK
 		
 		;// Wait for frame
-waitVbl
-		lda VICII_RASTER_COUNTER			
-		cmp #$ff
-		bne waitVbl
+		;//+WaitRasterA $ff
 		
 		;// VBL border col (Work)
-		+SetBorderColorA COLOR_RED
+		;//+SetBorderColorA COLOR_RED			
 		
-		jsr scroller
+		+SetBorderColorA COLOR_BLUE
+		jsr scrollChars
+
+		+WaitRasterA $57
+		+SetBorderColorA COLOR_YELLOW
+		jsr scrollPixels	
+
+
+		ldy #$62	;// Raster start
+		jsr rasterBars			
+		+SetBorderColorA COLOR_RED		
+
+		jsr noScrollPixels
+		jsr musicPlay
 		
 		jmp mainLoop
 
+colors
+		;//!byte $06,$06,$0e,$06
+		;//!byte $0e,$0e,$03,$0e
+		;//!byte $03,$03,$01,$03
+		;//!byte $01,$01       
+		;//!byte $03,$01,$03,$03
+		;//!byte $0e,$03,$0e,$0e
+		;//!byte $06,$0e,$06,$06
 
-scroller
+		;//byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-;// Put chars
+		!byte $06,$06,$06,$0e,$06,$0e
+        !byte $0e,$06,$0e,$0e,$0e,$03
+        !byte $0e,$03,$03,$0e,$03,$03
+        !byte $03,$01,$03,$01,$01,$03
+        !byte $01,$01,$01,$03,$01,$01
+        !byte $03,$01,$03,$03,$03,$0e
+        !byte $03,$03,$0e,$03,$0e,$0e
+        !byte $0e,$06,$0e,$0e,$06,$0e
+        !byte $06,$06,$06
+colorsEnd
+		!byte $00
+
+scrollChars
+		
+
+		;// Put chars
 		ldx scrollChar	
 		ldy #0
-putCharLoop
-		;//inc $D020
-		
+putCharLoop 
 		lda scrolltext,X
-		sta $0400+40,Y
+		sta $0400+320,Y
 		
 		inx
 		iny
 		
-		cpy #40
+		cpy #39
 		bne putCharLoop
 		
 		;// Scroll pixel ...
@@ -114,45 +163,47 @@ putCharLoop
 noNewScrollChar
 		sty scrollPixel
 		rts
+
+scrollPixels
 		
-interrupt
-		pha
-		txa
-		pha
-		tya
-		pha
-		
-		;// VBL border col (Work=???)
-		+SetBorderColorA COLOR_BROWN
-		+SetBackgroundColorA COLOR_BROWN
-		
-		;//lda #0
-		;//sbc scrollPixel
-		 
 		lda VICII_CONTROL_REGISTER_2
 		and #$F0
+		clc
 		adc scrollPixel
 		sta VICII_CONTROL_REGISTER_2
-		
-		jsr musicPlay
-		
-		;// VBL border col (Idle=black)
-		+SetBorderColorA COLOR_BLACK
-		+SetBackgroundColorA COLOR_BLACK
-		
-		lda #$ff 
-		sta VICII_INTERRUPT_REGISTER
-		
-		pla
-		tay
-		pla
-		tax
-		pla
-		
-		rti
-		;//jmp UNKNOWN_EA81
-		
-		
+		rts
+
+noScrollPixels
+		lda VICII_CONTROL_REGISTER_2
+		and #$F0
+		clc
+		adc #$08
+		sta VICII_CONTROL_REGISTER_2
+		rts
+
+rasterBars
+		;// y = raster start
+						
+		ldx #$00
+rastloop
+		lda colors,x                      
+
+		cpy VICII_RASTER_COUNTER
+		bne *-3
+
+		sta VICII_BORDER_COLOR
+		sta VICII_BACKGROUND_COLOR_0
+
+		cpx #(colorsEnd-colors)
+		beq rastdone
+
+		inx 
+		iny
+
+		jmp rastloop
+rastdone
+		rts
+
 scrollPixel
 		!byte 7
 scrollChar
@@ -160,29 +211,41 @@ scrollChar
 		
 scrolltext
 		!scr "                                        " 
-		!scr "oh my im awesome! yes i am, coz i have m"
-		!scr "ade a c64 scroller in asm. basic but it "
-		!scr "will improve. hell yeah. elvira is the b" 
-		!scr "est, no protest! greetz flyes out to run"
-		!scr "e, scoon, gasso, ekart and every other l"
-		!scr "amer i know!! :)"
-sinTable
-		!binary "..\data\sinus.bin"
+		!scr "dear sirs! you have been invited to the "
+		!scr "official gubbhack 2017! this time locate"
+		!scr "d at the magnificent -=[ hiq ]=- venue i" 
+		!scr "n oerebro. greetz flyes out to rune, sco"
+		!scr "on, gasso, ekart and every other lamer i"
+		!scr " know!! :)      "
+baseScreen
+		!scr "|||| |  | |||  |||  |  |  ||   ||| |  | "
+		!scr "|    |  | |  | |  | |  | |  | |    | |  "
+		!scr "| || |  | |||  |||  |||| |||| |    ||   "
+		!scr "|  | |  | |  | |  | |  | |  | |    | |  "
+		!scr "|||| |||| |||  |||  |  | |  |  ||| |  | "		
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "             ....when  02/29-31/2017... "
+		!scr "           .....where  hiq oerebro...   "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "                                        "
+		!scr "  ... code  krustur ..                  "
+		!scr "    .. gfx  krustur ....                "
+		!scr " ... music  queu? ...                   "
+;//sinTable
+;//		!binary "..\data\sinus.bin"
 
-		;//Working
-realstartSong = 2
-		;//!src "..\data\sid\Ghosts_n_Goblins.asm"
-		!src "..\data\sid\Ikari_Intro.asm"
-		;//!src "..\data\sid\Accept_or_Die.asm"
-		;//!src "..\data\sid\Iceman_01.asm"
-		;//!src "..\data\sid\Ode_to_C64.asm"
-		;//!src "..\data\sid\Last_Ninja_2.asm"
-		;//!src "..\data\sid\Last_Ninja_2_real.asm"
-		;//!src "..\data\sid\Commando.asm"
-		;//!src "..\data\sid\Monty_on_the_Run.asm"
-		
-		
-		;//Not working
-		;// !src "..\data\sid\Ghostbusters.asm"
-		;// !src "..\data\sid\Last_Ninja_4_loader.asm"
-		
+
+realstartSong = 1
+		!src "..\data\sid.asm"
