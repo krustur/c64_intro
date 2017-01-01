@@ -1,8 +1,8 @@
-function extractBin{
+#function extractBin{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
-        [string]$path,        
+        #[Parameter(Mandatory=$True)]
+        #[string]$path,        
         [Parameter(Mandatory=$True)]
         [string]$sidFile,
         [Parameter(Mandatory=$True)]
@@ -11,13 +11,13 @@ function extractBin{
         [string]$asmFile
 
     )
-    Write-Output "Sid file: $path/$sidFile"    
-    $sidLen = (Get-Item "$path/$sidFile").length
+    Write-Output "Sid file: $sidFile"    
+    $sidLen = (Get-Item "$sidFile").length
     Write-Output " fileLength: $sidLen"
    
     
 
-    $stream = [System.IO.File]::OpenRead("$path/$sidFile")
+    $stream = [System.IO.File]::OpenRead("$sidFile")
 
     $barr = New-Object byte[] $sidLen
     $bytesRead = $stream.Read($barr,0,76) # read first 76
@@ -47,11 +47,11 @@ function extractBin{
     $bytesRead = $stream.Read($barr, 0, $sidLen-$dataOffset) # read actual data
     $stream.Close();
 
-    $ostream = [System.IO.File]::OpenWrite("$path\$binFile")
+    $ostream = [System.IO.File]::OpenWrite("$binFile")
     $ostream.Write($barr,0,$bytesRead);
     $ostream.close();
 
-    echo "wrote $path\$binFile"  
+    Write-Output "wrote $binFile"  
 
 
 #        * = $AF00 
@@ -64,15 +64,15 @@ function extractBin{
     $const = ''
     $enc = 'ascii'
 
-    ("        * = $`{0:X0}") -f $loadAddress | Out-File "$path\$asmFile" -Encoding utf8
-    ("${const}musicInit = `${0:X0}" -f $initAddress) | Out-File "$path\$asmFile" -Encoding utf8 -Append
-    ("${const}musicPlay = `${0:X0}" -f $playAddress) | Out-File "$path\$asmFile" -Encoding utf8 -Append
-    ("${const}musicSongCount = `${0:X0}" -f $songs) | Out-File "$path\$asmFile"  -Encoding utf8 -Append
-    ("${const}musicStartSong = `${0:X0}" -f $startSong) | Out-File "$path\$asmFile"  -Encoding utf8 -Append
-    "$incBin `"..\data\sid\$binFile`"" | Out-File "$path\$asmFile" -Encoding utf8 -Append 
+    ("        * = $`{0:X0}") -f $loadAddress | Out-File "$asmFile" -Encoding utf8
+    ("${const}musicInit = `${0:X0}" -f $initAddress) | Out-File "$asmFile" -Encoding utf8 -Append
+    ("${const}musicPlay = `${0:X0}" -f $playAddress) | Out-File "$asmFile" -Encoding utf8 -Append
+    ("${const}musicSongCount = `${0:X0}" -f $songs) | Out-File "$asmFile"  -Encoding utf8 -Append
+    ("${const}musicStartSong = `${0:X0}" -f $startSong) | Out-File "$asmFile"  -Encoding utf8 -Append
+    "$incBin `"$binFile`"" | Out-File "$asmFile" -Encoding utf8 -Append 
 
-    echo "wrote "$path\$asmFile"" 
-}
+    Write-Output "wrote $asmFile"
+#}
 
-$sidName = 'Ikari_Intro'
-extractBin -path 'F:\Google Drive\Projects\C64\c64_intro\data\sid' -sidFile "$sidName.sid" -binFile "$sidName.bin" -asmFile "$sidName.asm"
+#$sidName = 'Ikari_Intro'
+#extractBin -path 'F:\Google Drive\Projects\C64\c64_intro\data\sid' -sidFile "$sidName.sid" -binFile "$sidName.bin" -asmFile "$sidName.asm"
