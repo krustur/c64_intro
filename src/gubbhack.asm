@@ -219,11 +219,11 @@ scrolltext
 		!scr "on, gasso, ekart and every other lamer i"
 		!scr " know!! :)      "
 baseScreen
-		!scr "|||| |  | |||  |||  |  |  ||   ||| |  | "
+		!scr " |||    |  ||   ||     |  ||   |||    | "
 		!scr "|    |  | |  | |  | |  | |  | |    | |  "
 		!scr "| || |  | |||  |||  |||| |||| |    ||   "
 		!scr "|  | |  | |  | |  | |  | |  | |    | |  "
-		!scr "|||| |||| |||  |||  |  | |  |  ||| |  | "		
+		!scr "|||  |||  |||  |||  | |  | |  |||  | |  "		
 		!scr "                                        "
 		!scr "                                        "
 		!scr "                                        "
