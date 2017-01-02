@@ -170,6 +170,7 @@ scrollPixels
 		and #$F0
 		clc
 		adc scrollPixel
+		and #$F7
 		sta VICII_CONTROL_REGISTER_2
 		rts
 
