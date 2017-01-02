@@ -154,7 +154,7 @@ putCharLoop
 		cpy #0
 		bne noNewScrollChar
 		;// ... and Scroll char
-		ldy #7		
+		ldy #8	
 
 		ldx scrollChar
 		inx
