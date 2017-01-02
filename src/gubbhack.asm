@@ -92,17 +92,17 @@ mainLoop
 		;// VBL border col (Work)
 		;//+SetBorderColorA COLOR_RED			
 		
-		+SetBorderColorA COLOR_BLUE
+		;//+SetBorderColorA COLOR_BLUE
 		jsr scrollChars
 
 		+WaitRasterA $57
-		+SetBorderColorA COLOR_YELLOW
+		;//+SetBorderColorA COLOR_YELLOW
 		jsr scrollPixels	
 
 
 		ldy #$62	;// Raster start
 		jsr rasterBars			
-		+SetBorderColorA COLOR_RED		
+		;//+SetBorderColorA COLOR_RED		
 
 		jsr noScrollPixels
 		jsr musicPlay
