@@ -211,13 +211,12 @@ scrollChar
 		!byte 0
 		
 scrolltext
-		!scr "                                        " 
-		!scr "dear sirs! you have been invited to the "
-		!scr "official gubbhack 2017! this time locate"
-		!scr "d at the magnificent -=[ hiq ]=- venue i" 
-		!scr "n oerebro. greetz flyes out to rune, sco"
-		!scr "on, gasso, ekart and every other lamer i"
-		!scr " know!! :)      "
+		!scr "                                        dear sirs! you have been" 
+		!scr " invited to the official gubbhack 2017 party! this time located "
+		!scr "at the magnificent -=[ hiq ]=- venue in oerebro. greetz flyes ou"
+		!scr "t to rune, scoon, gasso, ekart and every other lamer i know!! :)"
+
+
 baseScreen
 		!scr " |||    |  ||   ||     |  ||   |||    | "
 		!scr "|    |  | |  | |  | |  | |  | |    | |  "
