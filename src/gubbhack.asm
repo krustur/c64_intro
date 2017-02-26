@@ -81,6 +81,13 @@ clearColLoop
 		dey
 		bne clearColLoop
 
+		ldy #40
+clearColLoop2
+		lda #3
+		sta $DA07,y
+		dey
+		bne clearColLoop2
+
 mainLoop
 		;// VBL border col (Idle)
 		;//+WaitRasterA $ff
@@ -212,9 +219,9 @@ scrollChar
 		
 scrolltext
 		!scr "                                        dear sirs! you have been" 
-		!scr " invited to the official gubbhack 2017 party! this time located "
-		!scr "at the magnificent -=[ hiq ]=- venue in oerebro. greetz flyes ou"
-		!scr "t to rune, scoon, gasso, ekart and every other lamer i know!! :)"
+		!scr " invited to the official gubbhack 2017 spring edition party! thi"
+		!scr "s time located at the magnificent -=[ hiq ]=- venue in oerebro. "
+		!scr "greetz flyes out to rune, scoon and everyone else! end of scroll"
 
 
 baseScreen
@@ -231,18 +238,18 @@ baseScreen
 		!scr "                                        "
 		!scr "                                        "
 		!scr "                                        "
+		!scr "-s p r i n g   e d i t i o n   2 0 1 7--"
 		!scr "                                        "
 		!scr "                                        "
-		!scr "                                        "
-		!scr "           .... when  02/29-31/2017 ... "
-		!scr "         ..... where  hiq oerebro? ..   "
+		!scr "           .... when  5-7 may 2017 .... "
+		!scr "         ..... where  hiq oerebro ..    "
 		!scr "                                        "
 		!scr "                                        "
 		!scr "                                        "
 		!scr "                                        "
 		!scr "  ... code  krustur ..                  "
 		!scr "    .. gfx  krustur ....                "
-		!scr " ... music  queu? ...                   "
+		!scr " ... music  stolen ...                  "
 ;//sinTable
 ;//		!binary "..\data\sinus.bin"
 
