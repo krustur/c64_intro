@@ -238,7 +238,7 @@ baseScreen
 		!scr "                                        "
 		!scr "                                        "
 		!scr "                                        "
-		!scr "-s p r i n g   e d i t i o n   2 0 1 7--"
+		!scr " s p r i n g   e d i t i o n   2 0 1 7  "
 		!scr "                                        "
 		!scr "                                        "
 		!scr "           .... when  5-7 may 2017 .... "
